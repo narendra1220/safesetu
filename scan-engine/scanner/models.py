@@ -7,6 +7,7 @@ class ScanRequest(BaseModel):
     githubToken: str        # GitHub OAuth token
     defaultBranch: str      # "main"
     callbackUrl: str | None = None  # POST results here when done
+    callbackToken: str | None = None  # passed back in callback for auth
     scanId: str | None = None       # passed back in callback
 
 

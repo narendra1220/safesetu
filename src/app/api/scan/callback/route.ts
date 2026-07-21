@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 
 interface CallbackPayload {
   scanId: string;
+  callbackToken?: string;
   score?: number;
   verdict?: string;
   error?: string;
@@ -30,10 +31,18 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "scan not found" }, { status: 404 });
   }
 
+  if (!body.callbackToken || body.callbackToken !== scan.callbackToken) {
+    return NextResponse.json({ error: "unauthorized" }, { status: 401 });
+  }
+
   if (body.error) {
     await prisma.scan.update({
       where: { id: body.scanId },
-      data: { status: "failed", completedAt: new Date() },
+      data: {
+        status: "failed",
+        completedAt: new Date(),
+        errorMessage: body.error,
+      },
     });
     return NextResponse.json({ status: "failed" });
   }
@@ -59,6 +68,7 @@ export async function POST(request: Request) {
     data: {
       status: "completed",
       score: body.score ?? 0,
+      verdict: body.verdict,
       completedAt: new Date(),
     },
   });

@@ -39,6 +39,7 @@ async def _run_scan_and_callback(request: ScanRequest):
         if request.callbackUrl:
             payload = {
                 "scanId": request.scanId,
+                "callbackToken": request.callbackToken,
                 "score": result.score,
                 "verdict": result.verdict,
                 "findings": [f.model_dump() for f in result.findings],
@@ -53,6 +54,7 @@ async def _run_scan_and_callback(request: ScanRequest):
                 async with httpx.AsyncClient(timeout=10.0) as client:
                     await client.post(request.callbackUrl, json={
                         "scanId": request.scanId,
+                        "callbackToken": request.callbackToken,
                         "error": str(exc),
                     })
             except Exception:

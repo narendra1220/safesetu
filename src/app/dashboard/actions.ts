@@ -53,6 +53,14 @@ export async function connectRepos(
 ): Promise<void> {
   const user = await requireUser();
 
+  const token = await getGitHubToken(user.id);
+  if (!token) throw new Error("No GitHub token found");
+
+  const githubRepos = await fetchGitHubRepos(token);
+  const githubReposByFullName = new Map(
+    githubRepos.map((repo) => [repo.fullName, repo]),
+  );
+
   const existing = await prisma.repo.findMany({
     where: { userId: user.id },
     select: { fullName: true },
@@ -60,7 +68,9 @@ export async function connectRepos(
   const existingFullNames = new Set(existing.map((repo) => repo.fullName));
 
   const newRepos = repos.filter(
-    (repo) => !existingFullNames.has(repo.fullName),
+    (repo) =>
+      !existingFullNames.has(repo.fullName) &&
+      githubReposByFullName.has(repo.fullName),
   );
 
   if (newRepos.length === 0) {
@@ -74,6 +84,8 @@ export async function connectRepos(
       fullName: repo.fullName,
       url: repo.url,
       provider: "github",
+      defaultBranch:
+        githubReposByFullName.get(repo.fullName)?.defaultBranch ?? "main",
     })),
   });
 

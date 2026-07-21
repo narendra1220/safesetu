@@ -83,6 +83,14 @@ pip install -r requirements.txt
 uvicorn main:app --port 8000 --reload
 ```
 
+### Docker
+
+```bash
+docker compose up --build
+```
+
+The web app runs on port 3000, scan engine on port 8000.
+
 ### Optional: LLM enrichment
 
 ```bash

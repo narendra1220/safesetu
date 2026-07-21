@@ -35,14 +35,16 @@ interface FindingCardProps {
     fixDiff: string | null;
   };
   repoUrl: string;
+  defaultBranch: string;
 }
 
 function buildFileUrl(
   repoUrl: string,
+  defaultBranch: string,
   filePath: string,
   lineNumber: number | null,
 ): string {
-  const base = `${repoUrl}/blob/main/${filePath}`;
+  const base = `${repoUrl}/blob/${defaultBranch}/${filePath}`;
   return lineNumber ? `${base}#L${lineNumber}` : base;
 }
 
@@ -50,8 +52,8 @@ function buildCursorDeepLink(filePath: string, lineNumber: number | null): strin
   return `cursor://file/${filePath}:${lineNumber ?? 1}`;
 }
 
-export function FindingCard({ finding, repoUrl }: FindingCardProps) {
-  const fileUrl = buildFileUrl(repoUrl, finding.filePath, finding.lineNumber);
+export function FindingCard({ finding, repoUrl, defaultBranch }: FindingCardProps) {
+  const fileUrl = buildFileUrl(repoUrl, defaultBranch, finding.filePath, finding.lineNumber);
   const cursorUrl = buildCursorDeepLink(finding.filePath, finding.lineNumber);
 
   return (

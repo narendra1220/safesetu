@@ -48,6 +48,16 @@ export default async function ScanPage({
   }
 
   if (scan.status === "scanning" || scan.status === "pending") {
+    const elapsed = scan.startedAt
+      ? Math.floor((Date.now() - new Date(scan.startedAt).getTime()) / 1000)
+      : null;
+    const elapsedStr =
+      elapsed !== null
+        ? elapsed < 60
+          ? `${elapsed}s`
+          : `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`
+        : null;
+
     return (
       <>
         <meta httpEquiv="refresh" content="5" />
@@ -68,6 +78,11 @@ export default async function ScanPage({
                   Scanning {scan.repo.fullName}. This page auto-refreshes every
                   5 seconds.
                 </p>
+                {elapsedStr && (
+                  <p className="mt-2 text-xs text-muted-foreground tabular-nums">
+                    Running for {elapsedStr}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -224,6 +239,7 @@ export default async function ScanPage({
                   key={finding.id}
                   finding={finding}
                   repoUrl={scan.repo.url}
+                  defaultBranch={scan.repo.defaultBranch}
                 />
               ))}
             </div>

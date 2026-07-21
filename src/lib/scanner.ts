@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import { prisma } from "@/lib/db";
 import { getGitHubToken } from "@/lib/github";
 
@@ -9,11 +10,13 @@ export async function triggerScan(
   userId: string,
 ): Promise<string> {
   const repo = await prisma.repo.findUniqueOrThrow({
-    where: { id: repoId },
+    where: { id: repoId, userId },
   });
 
   const token = await getGitHubToken(userId);
   if (!token) throw new Error("No GitHub token found");
+
+  const callbackToken = crypto.randomBytes(32).toString("hex");
 
   const scan = await prisma.scan.create({
     data: {
@@ -21,28 +24,38 @@ export async function triggerScan(
       userId,
       status: "scanning",
       startedAt: new Date(),
+      callbackToken,
     },
   });
 
-  const response = await fetch(`${SCAN_ENGINE_URL}/scan`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      repoFullName: repo.fullName,
-      repoUrl: repo.url,
-      githubToken: token,
-      defaultBranch: "main",
-      callbackUrl: `${CALLBACK_BASE}/api/scan/callback`,
-      scanId: scan.id,
-    }),
-  });
+  try {
+    const response = await fetch(`${SCAN_ENGINE_URL}/scan`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        repoFullName: repo.fullName,
+        repoUrl: repo.url,
+        githubToken: token,
+        defaultBranch: repo.defaultBranch,
+        callbackUrl: `${CALLBACK_BASE}/api/scan/callback`,
+        callbackToken,
+        scanId: scan.id,
+      }),
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      throw new Error(`Scan engine returned ${response.status}`);
+    }
+  } catch (error) {
     await prisma.scan.update({
       where: { id: scan.id },
-      data: { status: "failed", completedAt: new Date() },
+      data: {
+        status: "failed",
+        completedAt: new Date(),
+        errorMessage: error instanceof Error ? error.message : "Unknown error",
+      },
     });
-    throw new Error(`Scan engine returned ${response.status}`);
+    throw error;
   }
 
   return scan.id;
