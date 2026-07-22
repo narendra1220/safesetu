@@ -56,7 +56,7 @@ const steps = [
   {
     icon: ScanSearch,
     title: "Scan",
-    description: "We read your code and run 5 security checks",
+    description: "We read your code and run 11 security checks",
   },
   {
     icon: FileCheck2,
@@ -98,6 +98,44 @@ export default async function HomePage() {
 
   return (
     <div className="box-grid-corner flex min-h-screen flex-col">
+      {/* Nav */}
+      <nav className="sticky top-0 z-40 border-b border-border/50 bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
+          <Link href="/" className="text-lg font-bold tracking-tight">
+            SafeSetu
+          </Link>
+          <div className="flex items-center gap-6">
+            <Link
+              href="/pricing"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Pricing
+            </Link>
+            <Link
+              href="/faq"
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              FAQ
+            </Link>
+            {isSignedIn ? (
+              <Link
+                href="/dashboard"
+                className={cn(buttonVariants({ size: "sm" }))}
+              >
+                Dashboard
+              </Link>
+            ) : (
+              <Link
+                href="/auth/signin"
+                className={cn(buttonVariants({ size: "sm" }))}
+              >
+                Sign In
+              </Link>
+            )}
+          </div>
+        </div>
+      </nav>
+
       <main className="flex-1">
         {/* Hero */}
         <section className="mx-auto flex max-w-4xl flex-col items-center px-4 py-24 text-center sm:py-32">
@@ -141,7 +179,7 @@ export default async function HomePage() {
         <section id="detects" className="border-t border-border/50 bg-white/[0.02] py-20">
           <div className="mx-auto max-w-6xl px-4">
             <h2 className="text-center text-3xl font-bold tracking-tight">
-              5 security checks your AI coding tool missed
+              11 security checks your AI coding tool missed
             </h2>
             <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {detects.map(({ icon: Icon, title, description }) => (
@@ -221,14 +259,41 @@ export default async function HomePage() {
         </section>
       </main>
 
-      {/* Footer */}
       <footer className="border-t border-border/50 py-10">
-        <div className="mx-auto max-w-6xl px-4 text-center">
-          <p className="text-sm text-foreground/70">
-            Built for builders shipping from Cursor, Lovable, Bolt, v0, and
-            Replit.
-          </p>
-          <p className="mt-4 text-xs text-muted-foreground">
+        <div className="mx-auto max-w-6xl px-4">
+          <div className="flex flex-col items-center gap-6 sm:flex-row sm:justify-between">
+            <p className="text-sm text-foreground/70">
+              Built for builders shipping from Cursor, Lovable, Bolt, v0, and
+              Replit.
+            </p>
+            <div className="flex items-center gap-6">
+              <Link
+                href="/pricing"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Pricing
+              </Link>
+              <Link
+                href="/faq"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                FAQ
+              </Link>
+              <Link
+                href="/terms"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Terms
+              </Link>
+              <Link
+                href="/privacy"
+                className="text-sm text-muted-foreground hover:text-foreground"
+              >
+                Privacy
+              </Link>
+            </div>
+          </div>
+          <p className="mt-6 text-center text-xs text-muted-foreground sm:text-left">
             SafeSetu &copy; {new Date().getFullYear()}
           </p>
         </div>

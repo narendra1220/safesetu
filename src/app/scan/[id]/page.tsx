@@ -18,6 +18,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { FindingCard } from "@/app/scan/[id]/finding-card";
+import { ScanButton } from "@/app/dashboard/scan-button";
 import { cn } from "@/lib/utils";
 import {
   sortFindingsBySeverity,
@@ -58,6 +59,9 @@ export default async function ScanPage({
           : `${Math.floor(elapsed / 60)}m ${elapsed % 60}s`
         : null;
 
+    const partialFindings = sortFindingsBySeverity(scan.findings);
+    const partialCounts = countBySeverity(partialFindings);
+
     return (
       <>
         <meta httpEquiv="refresh" content="5" />
@@ -70,7 +74,7 @@ export default async function ScanPage({
             Back to dashboard
           </Link>
           <Card>
-            <CardContent className="flex flex-col items-center gap-4 py-16 text-center">
+            <CardContent className="flex flex-col items-center gap-4 py-10 text-center">
               <Loader2 className="size-10 animate-spin text-muted-foreground" />
               <div>
                 <p className="text-lg font-medium">Scan in progress...</p>
@@ -86,6 +90,58 @@ export default async function ScanPage({
               </div>
             </CardContent>
           </Card>
+
+          {partialFindings.length > 0 && (
+            <div className="mt-6 flex flex-col gap-4">
+              <div className="flex items-center gap-3">
+                <h2 className="text-lg font-semibold">
+                  Findings so far ({partialFindings.length})
+                </h2>
+                <div className="flex flex-wrap gap-1.5">
+                  {partialCounts.critical > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="border-red-200 bg-red-100 text-red-700"
+                    >
+                      {partialCounts.critical} critical
+                    </Badge>
+                  )}
+                  {partialCounts.high > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="border-orange-200 bg-orange-100 text-orange-700"
+                    >
+                      {partialCounts.high} high
+                    </Badge>
+                  )}
+                  {partialCounts.medium > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="border-yellow-200 bg-yellow-100 text-yellow-700"
+                    >
+                      {partialCounts.medium} medium
+                    </Badge>
+                  )}
+                  {partialCounts.low > 0 && (
+                    <Badge
+                      variant="outline"
+                      className="border-blue-200 bg-blue-100 text-blue-700"
+                    >
+                      {partialCounts.low} low
+                    </Badge>
+                  )}
+                </div>
+              </div>
+              {partialFindings.map((finding) => (
+                <FindingCard
+                  key={finding.id}
+                  finding={finding}
+                  repoUrl={scan.repo.url}
+                  defaultBranch={scan.repo.defaultBranch}
+                />
+              ))}
+            </div>
+          )}
         </div>
       </>
     );
@@ -110,6 +166,9 @@ export default async function ScanPage({
                 Something went wrong while scanning {scan.repo.fullName}. Try
                 running the scan again from the dashboard.
               </p>
+            </div>
+            <div className="mt-4">
+              <ScanButton repoId={scan.repoId} />
             </div>
           </CardContent>
         </Card>
@@ -157,6 +216,9 @@ export default async function ScanPage({
                 </span>
               )}
             </p>
+            <div className="mt-2">
+              <ScanButton repoId={scan.repoId} />
+            </div>
           </div>
 
           <div

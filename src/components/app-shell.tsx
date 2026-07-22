@@ -59,6 +59,10 @@ export async function AppShell({
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Link href="/settings" className="w-full">Settings</Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
               <form
                 action={async () => {
                   "use server";

@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 interface CallbackPayload {
   scanId: string;
   callbackToken?: string;
+  status?: "partial" | "completed";
   score?: number;
   verdict?: string;
   error?: string;
@@ -61,6 +62,10 @@ export async function POST(request: Request) {
         fixDiff: f.fixDiff,
       })),
     });
+  }
+
+  if (body.status === "partial") {
+    return NextResponse.json({ status: "partial" });
   }
 
   await prisma.scan.update({

@@ -15,9 +15,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SafeSetu",
+  metadataBase: new URL("https://safesetu.dev"),
+  title: {
+    default: "SafeSetu",
+    template: "%s | SafeSetu",
+  },
   description:
-    "Security scanner for vibe-coded apps. Ship only when it's safe.",
+    "One-click security scanner for AI-built apps. Catches exposed secrets, missing RLS, unauthenticated routes, and more.",
+  openGraph: {
+    title: "SafeSetu",
+    description:
+      "One-click security scanner for AI-built apps. Ship only when it's safe.",
+    url: "https://safesetu.dev",
+    siteName: "SafeSetu",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "SafeSetu",
+    description:
+      "One-click security scanner for AI-built apps. Ship only when it's safe.",
+  },
 };
 
 export default function RootLayout({
